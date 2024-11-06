@@ -1,0 +1,14 @@
+*.py[cod]
+
+__pycache__/
+venv/
+.idea/
+
+.DS_Store
+
+*.sqlite3
+
+settings_local.py
+
+*.log
+

@@ -1,0 +1,109 @@
+{% load crispy_forms_tags %}
+
+<html>
+    <head>
+        <title>Index</title>
+        <link rel="stylesheet" type="text/css" href="https://bootswatch.com/5/lumen/bootstrap.min.css">
+    </head>
+    <body>
+        <div class="container">
+            <h3>Find gmail.com in text</h3>
+            <form method="POST" autocomplete="off" action="/">
+                {% csrf_token %}
+                <label for="message" class="form-label mt-4">Text to analyze:</label>
+                <input type="text" class="form-control" id="message" name="message" size="40"/>
+                <br />
+                <input type="submit" class="btn btn-primary" value="Submit"/>
+            </form>
+
+            <br />
+            {% if found %}
+                {% if probable %}
+                    <b>Resolution</b>: Text <span class="badge bg-info">{{ resolution }}</span> "gmail.com"
+                {% else %}
+                    <b>Resolution</b>: Text <span class="badge bg-success">{{ resolution }}</span> "gmail.com"
+                {% endif  %}
+                <ul>
+                    <li><b>Origin message</b>: {{ origin_message }}</li>
+                    <li><b>Domain found at</b>: {{ message_element }}</li>
+                </ul>
+            {% else %}
+                <b>Resolution</b>: Text <span class="badge bg-light">does not contain</span> "gmail.com"
+            {% endif %}
+            <hr />
+            <br>
+            <h3>Examples:</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Message</th>
+                        <th scope="col">Resolution</th>
+                        <th scope="col">Found at</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Some text, text, text. G:)  !   m:)  !   a:)  !   i:)  !  l:)  !  c:)  !  o:)  !  m:)</td>
+                        <td>Contains</td>
+                        <td>G:)  !   m:)  !   a:)  !   i:)  !  l:)  !  c:)  !  o:)  !  m:)</td>
+                    </tr>
+                    <tr>
+                        <td>My address: user123 g m a i l c o m contains</td>
+                        <td>Contains</td>
+                        <td>g m a i l c o m</td>
+                    </tr>
+                    <tr>
+                        <td>My address: g9m8a7i6l5.c4o3m</td>
+                        <td>Contains</td>
+                        <td>g9m8a7i6l5.c4o3m</td>
+                    </tr>
+                    <tr>
+                        <td>You can reach me at g😊m😊a😊i😊l😊.😊c😊o😊m</td>
+                        <td>Contains</td>
+                        <td>g😊m😊a😊i😊l😊.😊c😊o😊m</td>
+                    </tr>
+                    <tr>
+                        <td>Some text! margo.official ggg maaa ai lll [dot] c ooooommmm Some text!</td>
+                        <td>Contains</td>
+                        <td>ggg maaa ai lll [dot] c ooooommmm</td>
+                    </tr>
+                    <tr>
+                        <td>Some text! Some text! Gg GmMaaA iIii  iIll  lll. .cc oooooomm Some text! Some text!</td>
+                        <td>Contains</td>
+                        <td>Gg GmMaaA iIii  iIll  lll. .cc oooooomm</td>
+                    </tr>
+                    <tr>
+                        <td>Some text! Some text! g.! m.# a-^ i) ( l-> c* o m ) Some text! Some text!</td>
+                        <td>Contains</td>
+                        <td>g.! m.# a-^ i) ( l-> c* o m )</td>
+                    </tr>
+                    <tr>
+                        <td>My address: g***m***a***i***l***.***c***o***m contains</td>
+                        <td>Contains</td>
+                        <td>g***m***a***i***l***.***c***o***m</td>
+                    </tr>
+                    <tr>
+                        <td>Some text! Some text! u$s@e^r gm#ai!l.c%om Some text!</td>
+                        <td>Contains</td>
+                        <td>gm#ai!l.c%om</td>
+                    </tr>
+                    <tr>
+                        <td>Let's discuss details at the meeting. My email is g...m...a...i...l...c...o...m</td>
+                        <td>Contains</td>
+                        <td>g...m...a...i...l...c...o...m</td>
+                    </tr>
+                    <tr>
+                        <td>Some text! Some text! tiffany.doe-gmaildotcom Some text! Some text!</td>
+                        <td>Contains</td>
+                        <td>gmaildotcom</td>
+                    </tr>
+                    <tr>
+                        <td>This is a test of the gmail communication</td>
+                        <td>CAN contain</td>
+                        <td>gmail comm</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
+</html>
