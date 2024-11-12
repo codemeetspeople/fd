@@ -104,6 +104,29 @@
                     </tr>
                 </tbody>
             </table>
+            <br />
+            <br />
+            <h3>Latest results:</h3>
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">User</th>
+                        <th scope="col">Message</th>
+                        <th scope="col">Message part</th>
+                        <th scope="col">Resolution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for message in messages %}
+                        <tr>
+                            <td>Anonymous ({{ message.ip }})</td>
+                            <td>{{ message.origin_message|safe|escape }}</td>
+                            <td>{{ message.message_element|safe|escape }}</td>
+                            <td>{{ message.resolution }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </body>
 </html>

@@ -1,13 +1,25 @@
 from django.views.generic.base import TemplateView
+from domain.models import Message
 
 
 class IndexView(TemplateView):
     template_name = "domain/index.html"
 
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
+        messages = Message.objects.all()[:10]
 
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+        context = super().get_context_data(**kwargs)
+        context.update({'messages': messages})
+
+        return context
+
+    def get_client_ip(self, request):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
     def post(self, request, *args, **kwargs):
         message = request.POST.get('message')
@@ -16,7 +28,7 @@ class IndexView(TemplateView):
         params = {
             'origin_message': message,
             'message_element': '',
-            'resolution': '',
+            'resolution': 'does not contain',
             'found': int(found),
             'probable': int(probable)
         }
@@ -29,11 +41,21 @@ class IndexView(TemplateView):
 
             params['message_element'] = message[start:end]
 
+        if message:
+            Message.objects.create(
+                origin_message=message,
+                message_element=params['message_element'] or '---',
+                probable=probable,
+                found=found,
+                resolution=params['resolution'],
+                ip=self.get_client_ip(request)
+            )
+
         context = self.get_context_data(**kwargs)
         context.update(params)
         return self.render_to_response(context)
 
-    def parse_text(self, text: str, domain: str, probable=False):
+    def parse_text(self, text: str, domain: str, is_uncertain=False):
         sequence = [elem.lower() for elem in domain if elem.isalpha()]
         start_index = sequence_index = 0
         sequence_last_index = len(sequence) - 1
@@ -64,11 +86,11 @@ class IndexView(TemplateView):
                             pass
 
                         try:
-                            probable = text[next_index].isalpha()
+                            is_uncertain = text[next_index].isalpha()
                         except IndexError:
                             pass
 
-                        return True, start_index, text_index + offset, probable
+                        return True, start_index, text_index + offset, is_uncertain
 
                     sequence_index += 1
                     continue
@@ -78,4 +100,4 @@ class IndexView(TemplateView):
                     start_index = 0
                     sequence_index = 0
 
-        return False, 0, 0, probable
+        return False, 0, 0, is_uncertain
